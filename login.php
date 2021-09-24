@@ -19,6 +19,10 @@ session_start();
     body {
         font-family: 'JetBrains Mono', monospace;
     }
+
+    .margin {
+        margin-left: 440px;
+    }
     </style>
 </head>
 
@@ -34,8 +38,13 @@ session_start();
 
         if($count==1){
             $user_array=mysqli_fetch_assoc($result);
+            
             $_SESSION['user_array']=$user_array;
-            header("Location:admin.php");
+            if ($user_array['role']=='user'){
+                header("Location:user-dashboard.php");
+            } else{
+                header("Location:admin.php");
+            }
         }else{
             $error ="Email or password invalid";
         }
@@ -44,58 +53,48 @@ session_start();
     <div class="container-fluid">
         <div class="row">
             <div class="col-md-12">
-
-                <div class="card shadow">
-                    <div class="card-header bg-info">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="card-title">
-                                    <h5>Login Form</h5>
-                                </div>
-                            </div>
-                            <div class="col-md-6 ">
-                                <a href="index.php" class="float-end mx-2 btn btn-primary">
-                                    << Back </a>
-                            </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
                         </div>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-3"></div>
-                            <div class="col-md-6">
-                                <div class="card shadow">
-                                    <div class="card-header bg-info text-white fs-3">
-                                        <div class="card-title ">
-                                            Login
-                                        </div>
+                        <div class="col-md-6">
+                            <div class="card shadow">
+                                <div class="d-flex  fs-4 card-header bg-info text-white ">
+                                    <div class="card-title ">
+                                        Login
                                     </div>
-                                    <div class="card-body">
-                                        <div class="form-group">
+                                    <div class="margin">
+                                        <a href="index.php"><button
+                                                class="text-white btn-sm btn btn-primary">Home</button></a>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-group">
+                                        <form action="login.php" method="post">
+                                            <label for="">Email</label>
+                                            <input type="text" name="email" class="form-control">
+                                            <label for="">Password</label>
+                                            <input type="text" name="password" class="form-control">
+                                            <div class="card-footer mt-2  ">
+                                                <button class="btn btn-primary" type="submit"
+                                                    name="login">Login</button>
+                                                <span class=" float-end ">If you account no yet
+                                                    <a href=" register.php">registerhere</a></span>
+                                            </div>
+                                        </form>
 
-                                            <form action="login.php" method="post">
-                                                <label for="">Email</label>
-                                                <input type="text" name="email" class="form-control">
-                                                <label for="">Password</label>
-                                                <input type="text" name="password" class="form-control">
-                                                <div class="card-footer  bg-secondary">
-                                                    <button class="btn btn-primary" type="submit"
-                                                        name="login">Login</button>
-                                                    <span class=" float-end ">If you account no yet
-                                                        <a href=" register.php">registerhere</a></span>
-                                                </div>
-                                            </form>
-                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-3"></div>
                     </div>
-
-
+                    <div class="col-md-3"></div>
                 </div>
+
+
             </div>
         </div>
+    </div>
     </div>
     </div>
     <!-- JavaScript Bundle with Popper -->

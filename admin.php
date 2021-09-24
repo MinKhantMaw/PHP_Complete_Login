@@ -1,8 +1,13 @@
 <?php 
     session_start();
     require 'connect.php';
-    if(!isset($_SESSION['user_array'])){
+    if(!isset($_SESSION['user_array'])){ 
         header("Location:login.php");
+    }
+    else{
+        if ($_SESSION['user_array']['role'] != 'admin') {
+           header("Location:user-dashboard.php");
+        }
     }
     
 ?>
@@ -27,13 +32,21 @@
 </head>
 
 <body class="mt-2">
-    <?php
-    //logout 
-        if(isset($_POST['logout'])){
-            session_destroy();
-            header('Location:login.php');
+    <?php 
+    $edit= false;
+        if(isset($_GET['user_id'])){
+            $edit=true;
+            $user_id=$_GET['user_id'];
+            $query="SELECT * FROM user WHERE id=$user_id";
+           $result= mysqli_query($db,$query);
+           if ($result) {
+                $user=mysqli_fetch_assoc($result);
+           }else{
+             die("Error" . mysqli_error($db));
+           }
         }
-     ?>
+    ?>
+
     <div class="container-fluid">
         <div class="row">
             <div class="col-md-12">
@@ -42,12 +55,14 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="card-title">
-                                    <h5>Admin Dashboard</h5>
+                                    <a href="admin.php">
+                                        <h5>Admin Dashboard</h5>
+                                    </a>
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <form action="admin.php" method="post">
-                                    <button type="submit" name="logout" class="btn btn-danger float-end"
+                                <form action="logout.php" method="GET">
+                                    <button type="submit" name="logout" class="btn btn-sm btn-danger float-end"
                                         onclick="return confirm('Are you sure you want to logout')">
                                         Logout
                                     </button>
@@ -59,10 +74,13 @@
                     </div>
                     <div class="card-body">
                         <div class="row">
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <div class="card shadow border">
                                     <div class="card-body">
                                         <h6>Admin Info</h6>
+                                        <div class="text-info fs-5">
+                                            Role: <?php echo $_SESSION['user_array']['role']; ?>
+                                        </div>
                                         <div class="">
                                             Name: <?php echo $_SESSION['user_array']['name'] ;?>
                                         </div>
@@ -74,16 +92,64 @@
                                         </div>
                                     </div>
                                 </div>
+                                <div class="card shadow mt-2">
+                                    <?php if($edit==true): ?>
+                                    <div class="card-header  bg-secondary text-white">
+                                        <div class="card-heading">
+                                            User Editing Form
+                                        </div>
+                                    </div>
+                                    <form action="">
+                                        <div class="card-body">
+                                            <div class="form-group">
+                                                <label for="">Name</label>
+                                                <input type="text" name="name" class="form-control"
+                                                    value="<?php echo $user['name']; ?>">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="">Email</label>
+                                                <input type="email" name="email" class="form-control"
+                                                    value="<?php echo $user['email']; ?>">
+                                            </div>
+                                            <div class=" form-group">
+                                                <label for="">Address</label>
+                                                <textarea name="address" class="form-control" id="" cols="8" rows="2">
+                                                    <?php echo $user['address']; ?>
+                                                </textarea>
+                                            </div>
+                                            <div class=" form-group">
+                                                <label for="">Role</label>
+                                                <select name="role" class="form-control">
+                                                    <option value="">Select Role</option>
+                                                    <option value="admin" <?php if($user['role']== 'admin'){ ?> selected
+                                                        <?php } ?>>
+                                                        Admin
+                                                    </option>
+                                                    <option value="user" <?php if($user['role']== 'user'){ ?> selected
+                                                        <?php } ?>>
+                                                        User</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="card-footer">
+                                            <button class="btn btn-primary">Update</button>
+                                        </div>
+                                    </form>
+                                    <?php endif; ?>
+                                </div>
+
                             </div>
-                            <div class="col-md-8">
+                            <div class="col-md-9">
                                 <h5>User List</h5>
-                                <table class="shadow table table-hover table-striped">
-                                    <thead>
+                                <table class="shadow table table-hover">
+                                    <thead class="bg-dark text-white">
                                         <tr>
                                             <th>ID</th>
                                             <th>Name</th>
                                             <th>Email</th>
                                             <th>Address</th>
+                                            <th>Role</th>
+                                            <th>Action</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -98,6 +164,12 @@
                                             <td><?php echo $user['name']; ?></td>
                                             <td><?php echo $user['email']; ?></td>
                                             <td><?php echo $user['address']; ?></td>
+                                            <td><?php echo $user['role']; ?></td>
+                                            <td>
+                                                <a href=" admin.php?user_id=<?php echo $user['id']; ?>"
+                                                    class="btn btn-sm btn-primary">Edit</a>
+                                                <button class="btn btn-sm btn-danger">Delete</button>
+                                            </td>
                                         </tr>
                                         <?php
                                         }
@@ -113,7 +185,7 @@
         </div>
     </div>
     <!-- JavaScript Bundle with Popper -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js"
+    <script src=" https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-/bQdsTh/da6pkI1MST/rWKFNjaCP5gBSY4sEBT38Q/9RBh9AH40zEOg7Hlq2THRZ" crossorigin="anonymous">
     </script>
 </body>
